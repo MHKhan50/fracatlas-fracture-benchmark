@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below, and cite FracAtlas (Abedeen et al., 2023)."
+title: "FracAtlas Fracture Benchmark: classification, localisation, calibration and abstention on musculoskeletal X-rays"
+version: 0.1.0
+date-released: 2026-11-20
+license: MIT
+repository-code: "https://github.com/MHKhan50/fracatlas-fracture-benchmark"
+authors:
+  - family-names: Hussain
+    given-names: Muzammal
+    affiliation: "Independent researcher, Glasgow, United Kingdom"
+    orcid: "https://orcid.org/0009-0001-2570-5686"
+keywords: [fracture detection, X-ray, medical imaging, ConvNeXt, DINOv2, YOLO, calibration, selective prediction]
+references:
+  - type: article
+    title: "FracAtlas: A Dataset for Fracture Classification, Localization and Segmentation of Musculoskeletal Radiographs"
+    authors:
+      - family-names: Abedeen
+        given-names: Iftekharul
+      - family-names: Rahman
+        given-names: Md. Ashiqur
+      - family-names: Prottyasha
+        given-names: Fatema Zohra
+      - family-names: Ahmed
+        given-names: Tasnim
+      - family-names: Chowdhury
+        given-names: Tareque Mohmud
+      - family-names: Shatabda
+        given-names: Swakkhar
+    journal: "Scientific Data"
+    volume: 10
+    start: 521
+    year: 2023
+    doi: 10.1038/s41597-023-02432-4
