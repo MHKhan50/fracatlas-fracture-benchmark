@@ -18,34 +18,49 @@ SPLIT_FRACTIONS = {"train": 0.70, "val": 0.15, "test": 0.15}
 
 
 def download(root: str | Path, url: str = URL, retries: int = 5) -> Path:
-    """Download and unpack FracAtlas into ``root``; returns the folder that holds dataset.csv."""
+    """Return the folder that holds dataset.csv: an attached copy under /kaggle/input if present,
+    otherwise the figshare archive downloaded and unpacked into ``root``."""
     root = Path(root)
-    found = find_root(root)
-    if found is not None:
-        return found
+    for candidate in (root, Path("/kaggle/input")):
+        found = find_root(candidate)
+        if found is not None:
+            return found
     root.mkdir(parents=True, exist_ok=True)
     archive = root / "FracAtlas.zip"
     socket.setdefaulttimeout(120)
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (fracatlas-fracture-benchmark)"})
     for attempt in range(retries):
         try:
-            urllib.request.urlretrieve(url, str(archive) + ".part")
+            with urllib.request.urlopen(request) as resp, open(str(archive) + ".part", "wb") as fh:
+                shutil.copyfileobj(resp, fh, 1 << 20)
             shutil.move(str(archive) + ".part", archive)
             break
-        except Exception:
+        except Exception as err:  # noqa: BLE001
+            print(f"download attempt {attempt + 1} failed: {err!r}", flush=True)
             if attempt == retries - 1:
                 raise
             time.sleep(2 ** attempt * 5)
+    print("downloaded", round(archive.stat().st_size / 1e6, 1), "MB", flush=True)
+    _unzip(archive, root)
+    found = find_root(root)
+    if found is None:
+        listing = sorted(str(p.relative_to(root)) for p in root.rglob("*"))[:30]
+        raise FileNotFoundError("dataset.csv not found after unpacking; first entries: " + str(listing))
+    return found
+
+
+def _unzip(archive: Path, root: Path) -> None:
+    """Unpack, including zip files nested inside the archive."""
     with zipfile.ZipFile(archive) as zf:
         zf.extractall(root)
     archive.unlink()
-    found = find_root(root)
-    if found is None:
-        raise FileNotFoundError("dataset.csv not found after unpacking " + url)
-    return found
+    for inner in list(root.rglob("*.zip")):
+        _unzip(inner, inner.parent)
 
 
 def find_root(root: str | Path) -> Path | None:
     hits = sorted(Path(root).glob("**/dataset.csv")) if Path(root).exists() else []
+    hits = [h for h in hits if "__MACOSX" not in str(h)]
     return hits[0].parent if hits else None
 
 
