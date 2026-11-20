@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Images: a JPEG that ends a few bytes early is decoded as far as its data goes instead of stopping the run; such files are listed in `truncated_images.json` next to the image cache.
+
 ## 0.1.0 (2026-11-20)
 
 - FracAtlas download from figshare, metadata reader and a fixed 70/15/15 split stratified by fracture label and body region.

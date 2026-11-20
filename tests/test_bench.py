@@ -96,3 +96,17 @@ def test_summarise_and_analysis(tmp_path, fake_root):
     assert rep["models"]["convnext_tiny"]["ensemble"]["auroc"] > rep["models"]["cnn"]["ensemble"]["auroc"]
     assert "convnext_tiny_minus_cnn" in rep["comparison"]
     assert (tmp_path / "reports" / "fig_region_selective.png").exists()
+
+
+def test_truncated_jpeg_is_decoded(tmp_path):
+    import json
+    import numpy as np
+    from PIL import Image
+    from fracatlas_bench.train import cache_images
+    good = tmp_path / "a.jpg"
+    Image.fromarray((np.random.default_rng(0).random((64, 80)) * 255).astype("uint8")).save(good, quality=90)
+    cut = tmp_path / "b.jpg"
+    cut.write_bytes(good.read_bytes()[:-20])
+    arr = cache_images([str(good), str(cut)], 32, tmp_path / "c" / "cache.npy")
+    assert arr.shape == (2, 32, 32)
+    assert json.loads((tmp_path / "c" / "truncated_images.json").read_text()) == [str(cut)]

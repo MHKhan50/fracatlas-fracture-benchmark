@@ -31,10 +31,32 @@ def build(name: str):
     return timm.create_model(timm_id, pretrained=True, num_classes=1, **kwargs)
 
 
+TRUNCATED: list = []
+
+
+def _open_gray(path: str):
+    """Open an image as grayscale. A few FracAtlas JPEGs end a few bytes early; those are decoded as far as
+    the data goes (the missing bytes are at the very end of the file) and the path is recorded."""
+    from PIL import Image, ImageFile
+    try:
+        return Image.open(path).convert("L")
+    except OSError as err:
+        if "truncated" not in str(err):
+            raise
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
+        try:
+            img = Image.open(path).convert("L")
+        finally:
+            ImageFile.LOAD_TRUNCATED_IMAGES = False
+        TRUNCATED.append(str(path))
+        print(f"warning: truncated image decoded as far as possible: {path}", flush=True)
+        return img
+
+
 def letterbox(path: str, size: int) -> np.ndarray:
     """Grayscale image resized so its longer side is ``size`` and padded to a square (uint8)."""
     from PIL import Image
-    img = Image.open(path).convert("L")
+    img = _open_gray(path)
     w, h = img.size
     s = size / max(w, h)
     img = img.resize((max(1, round(w * s)), max(1, round(h * s))), Image.BILINEAR)
@@ -51,6 +73,7 @@ def cache_images(paths, size: int, cache: str | Path | None = None) -> np.ndarra
     if cache is not None:
         Path(cache).parent.mkdir(parents=True, exist_ok=True)
         np.save(cache, arr)
+        Path(cache).with_name("truncated_images.json").write_text(json.dumps(sorted(set(TRUNCATED)), indent=2))
     return arr
 
 
