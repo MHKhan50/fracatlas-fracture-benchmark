@@ -17,7 +17,28 @@ REGIONS = ("hand", "leg", "hip", "shoulder")
 SPLIT_FRACTIONS = {"train": 0.70, "val": 0.15, "test": 0.15}
 
 
-def download(root: str | Path, url: str = URL, retries: int = 5) -> Path:
+ARTICLE_API = "https://api.figshare.com/v2/articles/22363012"
+FALLBACK_URLS = ("https://ndownloader.figshare.com/files/43283628", URL)
+HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) fracatlas-fracture-benchmark", "Accept": "*/*"}
+
+
+def _candidate_urls() -> list:
+    """Archive URLs from the figshare API (largest zip first), then the fixed fallbacks."""
+    import json
+    urls = []
+    try:
+        req = urllib.request.Request(ARTICLE_API, headers=HEADERS)
+        with urllib.request.urlopen(req) as resp:
+            files = json.loads(resp.read().decode())["files"]
+        files = sorted((f for f in files if f["name"].lower().endswith(".zip")), key=lambda f: -f["size"])
+        urls += [f["download_url"] for f in files]
+        print("figshare API:", [(f["name"], round(f["size"] / 1e6, 1)) for f in files], flush=True)
+    except Exception as err:  # noqa: BLE001
+        print("figshare API lookup failed:", repr(err), flush=True)
+    return urls + [u for u in FALLBACK_URLS if u not in urls]
+
+
+def download(root: str | Path, url: str | None = None, retries: int = 4) -> Path:
     """Return the folder that holds dataset.csv: an attached copy under /kaggle/input if present,
     otherwise the figshare archive downloaded and unpacked into ``root``."""
     root = Path(root)
@@ -28,25 +49,28 @@ def download(root: str | Path, url: str = URL, retries: int = 5) -> Path:
     root.mkdir(parents=True, exist_ok=True)
     archive = root / "FracAtlas.zip"
     socket.setdefaulttimeout(120)
-    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (fracatlas-fracture-benchmark)"})
-    for attempt in range(retries):
-        try:
-            with urllib.request.urlopen(request) as resp, open(str(archive) + ".part", "wb") as fh:
-                shutil.copyfileobj(resp, fh, 1 << 20)
-            shutil.move(str(archive) + ".part", archive)
-            break
-        except Exception as err:  # noqa: BLE001
-            print(f"download attempt {attempt + 1} failed: {err!r}", flush=True)
-            if attempt == retries - 1:
-                raise
-            time.sleep(2 ** attempt * 5)
-    print("downloaded", round(archive.stat().st_size / 1e6, 1), "MB", flush=True)
-    _unzip(archive, root)
-    found = find_root(root)
-    if found is None:
-        listing = sorted(str(p.relative_to(root)) for p in root.rglob("*"))[:30]
-        raise FileNotFoundError("dataset.csv not found after unpacking; first entries: " + str(listing))
-    return found
+    for link in ([url] if url else _candidate_urls()):
+        for attempt in range(retries):
+            try:
+                req = urllib.request.Request(link, headers=HEADERS)
+                with urllib.request.urlopen(req) as resp, open(archive, "wb") as fh:
+                    shutil.copyfileobj(resp, fh, 1 << 20)
+                    status = resp.status
+                head = archive.read_bytes()[:4] if archive.exists() else b""
+                size = archive.stat().st_size
+                print(f"{link}: HTTP {status}, {size / 1e6:.1f} MB", flush=True)
+                if head.startswith(b"PK") and size > 1e6:
+                    _unzip(archive, root)
+                    found = find_root(root)
+                    if found is not None:
+                        return found
+                break  # a response that is not the archive: try the next URL
+            except Exception as err:  # noqa: BLE001
+                print(f"{link}: attempt {attempt + 1} failed: {err!r}", flush=True)
+                time.sleep(2 ** attempt * 5)
+    raise RuntimeError("Could not download FracAtlas from figshare. Download FracAtlas.zip in a browser from "
+                       "https://doi.org/10.6084/m9.figshare.22363012, add it to this notebook as a private Kaggle "
+                       "dataset (Add Input) and run again; the attached copy is used automatically.")
 
 
 def _unzip(archive: Path, root: Path) -> None:
