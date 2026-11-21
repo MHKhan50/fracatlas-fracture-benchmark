@@ -16,10 +16,14 @@ def run_yolo(df, root, out_dir, weights="yolo11s.pt", epochs=60, imgsz=640, seed
     from .metrics import sens_at_spec
     out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     yaml = yolo_dataset(df, root, out / "yolo_data")
-    model = YOLO(weights)
-    model.train(data=str(yaml), epochs=epochs, imgsz=imgsz, batch=batch, seed=seed, deterministic=True,
-                patience=15, project=str(out / "yolo_runs"), name="train", exist_ok=True, verbose=False, plots=True)
     best = out / "yolo_runs" / "train" / "weights" / "best.pt"
+    if best.exists():
+        print(f"reusing trained detector {best}", flush=True)
+    else:
+        model = YOLO(weights)
+        model.train(data=str(yaml), epochs=epochs, imgsz=imgsz, batch=batch, seed=seed, deterministic=True,
+                    patience=15, project=str(out / "yolo_runs"), name="train", exist_ok=True, verbose=False,
+                    plots=True)
     model = YOLO(str(best))
     res = {}
     for part in ("val", "test"):
@@ -29,8 +33,11 @@ def run_yolo(df, root, out_dir, weights="yolo11s.pt", epochs=60, imgsz=640, seed
                      "recall": float(m.box.mr)}
     test = df[df["split"] == "test"]
     scores = []
+    from .train import _open_gray
     for path in test["path"]:
-        r = model.predict(path, imgsz=imgsz, conf=0.001, verbose=False)[0]
+        # Decode with Pillow (which also reads the few truncated FracAtlas JPEGs) and pass the image itself.
+        image = _open_gray(path).convert("RGB")
+        r = model.predict(image, imgsz=imgsz, conf=0.001, verbose=False)[0]
         scores.append(float(r.boxes.conf.max()) if len(r.boxes) else 0.0)
     scores, y = np.array(scores), test["fractured"].to_numpy()
     res["test"]["image_level_auroc"] = float(roc_auc_score(y, scores))

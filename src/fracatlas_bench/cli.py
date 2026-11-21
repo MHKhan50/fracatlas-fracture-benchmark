@@ -46,13 +46,22 @@ def main(argv=None):
     elif args.cmd in ("train", "probe"):
         from .train import MODELS, cache_images, probe_dinov2, train_one
         model = args.model if args.cmd == "train" else "dinov2_small"
+        out = Path(args.out)
+        # Steps whose outputs already exist (for example restored from an earlier Kaggle version) are skipped.
+        if args.cmd == "probe":
+            pending = [] if (out / "dinov2_probe_s0_meta.json").exists() else [0]
+        else:
+            pending = [int(s) for s in args.seeds.split(",") if not (out / f"{model}_s{int(s)}_meta.json").exists()]
+        if not pending:
+            print(f"{args.cmd} {model}: all outputs present, skipping", flush=True)
+            return
         size = MODELS[model][1]
         cache = None if args.limit else Path(args.data_dir) / f"cache_{size}.npy"
         images = cache_images(df["path"].tolist(), size, cache)
         if args.cmd == "probe":
             print(json.dumps(probe_dinov2(df, images, args.out)))
         else:
-            for seed in [int(s) for s in args.seeds.split(",")]:
+            for seed in pending:
                 print(json.dumps(train_one(args.model, df, images, seed, args.out, epochs=args.epochs,
                                            batch_size=args.batch_size)), flush=True)
     elif args.cmd == "detect":
