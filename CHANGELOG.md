@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2026-11-21)
 
+- Paper (`paper/`), per-region and referral results, analysis files of the Kaggle run in `results/kaggle-2026-11-21/`.
 - Results of the Kaggle run in the README.
 - Release step (`fracatlas_bench.release`): ONNX export of ConvNeXt-Tiny and YOLO11s checked against PyTorch, temperature and threshold of the released seed fitted on validation data; release notebook; Hugging Face publishing script with model card.
 - Static browser app (`space/`): both ONNX models run in the browser with onnxruntime-web; calibrated probability, validation threshold, referral below confidence 0.8, detector boxes; tested pre- and post-processing.

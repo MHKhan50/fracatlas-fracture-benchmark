@@ -56,6 +56,12 @@ classifier (highest box confidence) AUROC 0.882 and sensitivity 0.752 at 90% spe
 **Released weights (best validation AUROC, never chosen on test):** ConvNeXt-Tiny seed 1 (0.941), DINOv2-S seed 1
 (0.933), small CNN seed 1 (0.854).
 
+**By region and referral (ConvNeXt-Tiny ensemble):** AUROC 0.918 on hand, 0.880 on leg and 0.983 on
+multiple-region images. At the validation threshold it finds 78% of fractures with 93% specificity, but only 17 of 32
+leg fractures; leg images are 15 of its 24 misses. Referring the least confident 20% raises accuracy on the kept
+images from 0.906 to 0.961 (sensitivity 0.78 to 0.82); referring half gives 0.984 (sensitivity 0.90). Full numbers:
+`results/kaggle-2026-11-21/analysis.json`.
+
 In short: pretraining matters (every pretrained model beats the CNN trained from scratch), ConvNeXt-Tiny is both the
 best and the most stable across seeds, DINOv2 features are strong frozen but fine-tuning them varies a lot between
 seeds, and the detector ranks images well but localises fractures only moderately.
@@ -66,6 +72,10 @@ seeds, and the detector ranks images well but localises fractures only moderatel
 ConvNeXt-Tiny and the YOLO11s detector to ONNX (checked against PyTorch), fits that seed's temperature and threshold
 on validation data, and, only when `PUBLISH = True`, uploads the model card and the static browser app in `space/`
 (`node space/test_core.mjs` tests its pre- and post-processing).
+
+## Paper
+
+`paper/main.pdf` (LaTeX source in `paper/`; figure from `scripts/paper_figures.py`).
 
 ## Quick start
 
@@ -86,7 +96,7 @@ On Kaggle: import `notebooks/kaggle_fracatlas.ipynb` from this repository (GPU T
 
 - No patient ids: the image-level split may place images of one patient in train and test, which can inflate test scores.
 - One dataset from one country; no external validation. Results do not transfer to other hospitals, devices or populations without testing.
-- Hip and shoulder have 63 fractured images each; their per-region estimates are uncertain.
+- Most fractured hip and shoulder images are also flagged with another region (the "multiple" group); hip-only and shoulder-only fractures number 10 each, 2 each in the test split, so those per-region values are uninformative.
 - Image-level labels only for the classifiers; YOLO uses the released boxes.
 
 ## Citation

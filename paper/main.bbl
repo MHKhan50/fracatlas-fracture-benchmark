@@ -1,0 +1,119 @@
+\begin{thebibliography}{15}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abedeen et~al.(2023)Abedeen, Rahman, Prottyasha, Ahmed, Chowdhury, and
+  Shatabda]{abedeen2023fracatlas}
+Iftekharul Abedeen, Md.~Ashiqur Rahman, Fatema~Zohra Prottyasha, Tasnim Ahmed,
+  Tareque~Mohmud Chowdhury, and Swakkhar Shatabda.
+\newblock {FracAtlas}: A dataset for fracture classification, localization and
+  segmentation of musculoskeletal radiographs.
+\newblock \emph{Scientific Data}, 10:\penalty0 521, 2023.
+\newblock \doi{10.1038/s41597-023-02432-4}.
+
+\bibitem[Geifman and El-Yaniv(2017)]{geifman2017selective}
+Yonatan Geifman and Ran El-Yaniv.
+\newblock Selective classification for deep neural networks.
+\newblock In \emph{Advances in Neural Information Processing Systems 30
+  (NeurIPS)}, 2017.
+
+\bibitem[Guo et~al.(2017)Guo, Pleiss, Sun, and Weinberger]{guo2017calibration}
+Chuan Guo, Geoff Pleiss, Yu~Sun, and Kilian~Q. Weinberger.
+\newblock On calibration of modern neural networks.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine
+  Learning (ICML)}, volume~70 of \emph{PMLR}, pages 1321--1330, 2017.
+
+\bibitem[Jocher and Qiu(2024)]{jocher2024yolo11}
+Glenn Jocher and Jing Qiu.
+\newblock Ultralytics {YOLO11}.
+\newblock \url{https://github.com/ultralytics/ultralytics}, 2024.
+
+\bibitem[Kuo et~al.(2022)Kuo, Harrison, Curran, Jones, Freethy, Cussons,
+  Stewart, Collins, and Furniss]{kuo2022fracture}
+Rachel Y.~L. Kuo, Conrad Harrison, Terry-Ann Curran, Benjamin Jones, Alexander
+  Freethy, David Cussons, Max Stewart, Gary~S. Collins, and Dominic Furniss.
+\newblock Artificial intelligence in fracture detection: A systematic review
+  and meta-analysis.
+\newblock \emph{Radiology}, 304\penalty0 (1):\penalty0 50--62, 2022.
+\newblock \doi{10.1148/radiol.211785}.
+
+\bibitem[Lakshminarayanan et~al.(2017)Lakshminarayanan, Pritzel, and
+  Blundell]{lakshminarayanan2017ensembles}
+Balaji Lakshminarayanan, Alexander Pritzel, and Charles Blundell.
+\newblock Simple and scalable predictive uncertainty estimation using deep
+  ensembles.
+\newblock In \emph{Advances in Neural Information Processing Systems 30
+  (NeurIPS)}, 2017.
+
+\bibitem[Lindsey et~al.(2018)Lindsey, Daluiski, Chopra, Lachapelle, Mozer,
+  Sicular, Hanel, Gardner, Gupta, Hotchkiss, and Potter]{lindsey2018fracture}
+Robert Lindsey, Aaron Daluiski, Sumit Chopra, Alexander Lachapelle, Michael
+  Mozer, Serge Sicular, Douglas Hanel, Michael Gardner, Anurag Gupta, Robert
+  Hotchkiss, and Hollis Potter.
+\newblock Deep neural network improves fracture detection by clinicians.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 115\penalty0
+  (45):\penalty0 11591--11596, 2018.
+\newblock \doi{10.1073/pnas.1806905115}.
+
+\bibitem[Liu et~al.(2022)Liu, Mao, Wu, Feichtenhofer, Darrell, and
+  Xie]{liu2022convnext}
+Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feichtenhofer, Trevor Darrell,
+  and Saining Xie.
+\newblock A {ConvNet} for the 2020s.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 11976--11986, 2022.
+\newblock \doi{10.1109/CVPR52688.2022.01167}.
+
+\bibitem[Loshchilov and Hutter(2019)]{loshchilov2019adamw}
+Ilya Loshchilov and Frank Hutter.
+\newblock Decoupled weight decay regularization.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2019.
+
+\bibitem[Naeini et~al.(2015)Naeini, Cooper, and Hauskrecht]{naeini2015ece}
+Mahdi~Pakdaman Naeini, Gregory~F. Cooper, and Milos Hauskrecht.
+\newblock Obtaining well calibrated probabilities using {Bayesian} binning.
+\newblock In \emph{Proceedings of the 29th AAAI Conference on Artificial
+  Intelligence}, pages 2901--2907, 2015.
+
+\bibitem[Oquab et~al.(2024)Oquab, Darcet, Moutakanni, Vo, Szafraniec, Khalidov,
+  Fernandez, Haziza, Massa, El-Nouby, et~al.]{oquab2024dinov2}
+Maxime Oquab, Timoth{\'e}e Darcet, Th{\'e}o Moutakanni, Huy~V. Vo, Marc
+  Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa,
+  Alaaeldin El-Nouby, et~al.
+\newblock {DINOv2}: Learning robust visual features without supervision.
+\newblock \emph{Transactions on Machine Learning Research}, 2024.
+\newblock arXiv:2304.07193.
+
+\bibitem[Rajpurkar et~al.(2017)Rajpurkar, Irvin, Bagul, Ding, Duan, Mehta,
+  Yang, Zhu, Laird, Ball, Langlotz, Shpanskaya, Lungren, and
+  Ng]{rajpurkar2017mura}
+Pranav Rajpurkar, Jeremy Irvin, Aarti Bagul, Daisy Ding, Tony Duan, Hershel
+  Mehta, Brandon Yang, Kaylie Zhu, Dillon Laird, Robyn~L. Ball, Curtis
+  Langlotz, Katie Shpanskaya, Matthew~P. Lungren, and Andrew~Y. Ng.
+\newblock {MURA}: Large dataset for abnormality detection in musculoskeletal
+  radiographs.
+\newblock arXiv:1712.06957, 2017.
+
+\bibitem[Varoquaux and Cheplygina(2022)]{varoquaux2022failures}
+Ga{\"e}l Varoquaux and Veronika Cheplygina.
+\newblock Machine learning for medical imaging: methodological failures and
+  recommendations for the future.
+\newblock \emph{npj Digital Medicine}, 5:\penalty0 48, 2022.
+\newblock \doi{10.1038/s41746-022-00592-y}.
+
+\bibitem[Wightman(2019)]{wightman2019timm}
+Ross Wightman.
+\newblock {PyTorch} image models.
+\newblock \url{https://github.com/huggingface/pytorch-image-models}, 2019.
+
+\bibitem[Youden(1950)]{youden1950}
+W.~J. Youden.
+\newblock Index for rating diagnostic tests.
+\newblock \emph{Cancer}, 3\penalty0 (1):\penalty0 32--35, 1950.
+\newblock \doi{10.1002/1097-0142(1950)3:1<32::AID-CNCR2820030106>3.0.CO;2-3}.
+
+\end{thebibliography}

@@ -1,0 +1,594 @@
+{
+  "test_images": 614,
+  "test_fractured": 109,
+  "models": {
+    "cnn": {
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "auroc_per_seed": {
+        "0": 0.8081660459623945,
+        "1": 0.8191843037514761,
+        "2": 0.7469797438459442
+      },
+      "auroc_mean": 0.7914433645199382,
+      "auroc_sd": 0.03889872329212474,
+      "sens_at_90_spec_mean": 0.43119266055045874,
+      "ece_before_mean": 0.18602503674382098,
+      "ece_after_mean": 0.15691993668465945,
+      "ensemble": {
+        "auroc": 0.8094740666727224,
+        "auroc_ci95": [
+          0.7630535970602401,
+          0.8523762691080761
+        ],
+        "auprc": 0.5366591812058283,
+        "auprc_ci95": [
+          0.441876805804197,
+          0.6272923919100182
+        ],
+        "sens_at_90_spec": 0.44036697247706424,
+        "spec_at_90_sens": 0.4475247524752475,
+        "operating_point": {
+          "threshold": 0.5571696155806768,
+          "sensitivity": 0.5688073394495413,
+          "specificity": 0.8455445544554455,
+          "precision": 0.44285714285714284,
+          "f1": 0.497991967871486,
+          "accuracy": 0.7964169381107492,
+          "tp": 62,
+          "fp": 78,
+          "fn": 47,
+          "tn": 427
+        },
+        "temperature": 0.7086310405940527,
+        "ece_before": 0.18155879084415896,
+        "ece_after": 0.15107081951739135,
+        "risk_coverage": {
+          "1.0": {
+            "accuracy": 0.7964169381107492,
+            "sensitivity": 0.5688073394495413,
+            "specificity": 0.8455445544554455,
+            "kept": 614
+          },
+          "0.9": {
+            "accuracy": 0.810126582278481,
+            "sensitivity": 0.6451612903225806,
+            "specificity": 0.8434782608695652,
+            "kept": 553
+          },
+          "0.8": {
+            "accuracy": 0.8370672097759674,
+            "sensitivity": 0.6712328767123288,
+            "specificity": 0.8660287081339713,
+            "kept": 491
+          },
+          "0.7": {
+            "accuracy": 0.8674418604651163,
+            "sensitivity": 0.7096774193548387,
+            "specificity": 0.8940217391304348,
+            "kept": 430
+          },
+          "0.6": {
+            "accuracy": 0.8913043478260869,
+            "sensitivity": 0.7169811320754716,
+            "specificity": 0.9206349206349206,
+            "kept": 368
+          },
+          "0.5": {
+            "accuracy": 0.9153094462540716,
+            "sensitivity": 0.7333333333333333,
+            "specificity": 0.9465648854961832,
+            "kept": 307
+          },
+          "aurc": 0.10247804574182527,
+          "refer_rate_at_0.8_confidence": 0.4495114006514658
+        },
+        "prevalence_test": 0.1775244299674267,
+        "by_region": {
+          "hand": {
+            "n": 192,
+            "fractured": 57,
+            "auroc": 0.722936972059779,
+            "sensitivity": 0.6666666666666666,
+            "specificity": 0.6222222222222222,
+            "fp": 51,
+            "fn": 19
+          },
+          "hip": {
+            "n": 27,
+            "fractured": 2,
+            "auroc": 0.6799999999999999,
+            "sensitivity": 0.5,
+            "specificity": 0.96,
+            "fp": 1,
+            "fn": 1
+          },
+          "leg": {
+            "n": 319,
+            "fractured": 32,
+            "auroc": 0.7951872822299652,
+            "sensitivity": 0.34375,
+            "specificity": 0.9581881533101045,
+            "fp": 12,
+            "fn": 21
+          },
+          "multiple": {
+            "n": 60,
+            "fractured": 16,
+            "auroc": 0.8423295454545454,
+            "sensitivity": 0.75,
+            "specificity": 0.75,
+            "fp": 11,
+            "fn": 4
+          },
+          "shoulder": {
+            "n": 16,
+            "fractured": 2,
+            "auroc": 0.75,
+            "sensitivity": 0.0,
+            "specificity": 0.7857142857142857,
+            "fp": 3,
+            "fn": 2
+          }
+        }
+      }
+    },
+    "convnext_tiny": {
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "auroc_per_seed": {
+        "0": 0.9285039513125625,
+        "1": 0.9169225179398675,
+        "2": 0.9205377418475793
+      },
+      "auroc_mean": 0.9219880703666697,
+      "auroc_sd": 0.005925368288259284,
+      "sens_at_90_spec_mean": 0.7981651376146789,
+      "ece_before_mean": 0.06593306161617922,
+      "ece_after_mean": 0.042166266812433705,
+      "ensemble": {
+        "auroc": 0.9275683531655918,
+        "auroc_ci95": [
+          0.8912447125133369,
+          0.9565225762541866
+        ],
+        "auprc": 0.835170682001618,
+        "auprc_ci95": [
+          0.7645533584381673,
+          0.8895024985820041
+        ],
+        "sens_at_90_spec": 0.8073394495412844,
+        "spec_at_90_sens": 0.7564356435643564,
+        "operating_point": {
+          "threshold": 0.2633232418746975,
+          "sensitivity": 0.7798165137614679,
+          "specificity": 0.9326732673267327,
+          "precision": 0.7142857142857143,
+          "f1": 0.7456140350877193,
+          "accuracy": 0.9055374592833876,
+          "tp": 85,
+          "fp": 34,
+          "fn": 24,
+          "tn": 471
+        },
+        "temperature": 1.5880251979544477,
+        "ece_before": 0.05731409831636712,
+        "ece_after": 0.03561039701085365,
+        "risk_coverage": {
+          "1.0": {
+            "accuracy": 0.9055374592833876,
+            "sensitivity": 0.7798165137614679,
+            "specificity": 0.9326732673267327,
+            "kept": 614
+          },
+          "0.9": {
+            "accuracy": 0.945750452079566,
+            "sensitivity": 0.7613636363636364,
+            "specificity": 0.9806451612903225,
+            "kept": 553
+          },
+          "0.8": {
+            "accuracy": 0.9613034623217923,
+            "sensitivity": 0.821917808219178,
+            "specificity": 0.9856459330143541,
+            "kept": 491
+          },
+          "0.7": {
+            "accuracy": 0.9744186046511628,
+            "sensitivity": 0.8615384615384616,
+            "specificity": 0.9945205479452055,
+            "kept": 430
+          },
+          "0.6": {
+            "accuracy": 0.9755434782608695,
+            "sensitivity": 0.8571428571428571,
+            "specificity": 0.9937304075235109,
+            "kept": 368
+          },
+          "0.5": {
+            "accuracy": 0.9837133550488599,
+            "sensitivity": 0.9024390243902439,
+            "specificity": 0.9962406015037594,
+            "kept": 307
+          },
+          "aurc": 0.02410319667183884,
+          "refer_rate_at_0.8_confidence": 0.10097719869706841
+        },
+        "prevalence_test": 0.1775244299674267,
+        "by_region": {
+          "hand": {
+            "n": 192,
+            "fractured": 57,
+            "auroc": 0.9176088369070825,
+            "sensitivity": 0.8771929824561403,
+            "specificity": 0.8592592592592593,
+            "fp": 19,
+            "fn": 7
+          },
+          "hip": {
+            "n": 27,
+            "fractured": 2,
+            "auroc": 1.0,
+            "sensitivity": 1.0,
+            "specificity": 1.0,
+            "fp": 0,
+            "fn": 0
+          },
+          "leg": {
+            "n": 319,
+            "fractured": 32,
+            "auroc": 0.8798998257839721,
+            "sensitivity": 0.53125,
+            "specificity": 0.9686411149825784,
+            "fp": 9,
+            "fn": 15
+          },
+          "multiple": {
+            "n": 60,
+            "fractured": 16,
+            "auroc": 0.9829545454545454,
+            "sensitivity": 0.875,
+            "specificity": 0.8863636363636364,
+            "fp": 5,
+            "fn": 2
+          },
+          "shoulder": {
+            "n": 16,
+            "fractured": 2,
+            "auroc": 1.0,
+            "sensitivity": 1.0,
+            "specificity": 0.9285714285714286,
+            "fp": 1,
+            "fn": 0
+          }
+        }
+      }
+    },
+    "dinov2_probe": {
+      "seeds": [
+        0
+      ],
+      "auroc_per_seed": {
+        "0": 0.8731946589154329
+      },
+      "auroc_mean": 0.8731946589154329,
+      "auroc_sd": 0.0,
+      "sens_at_90_spec_mean": 0.6422018348623854,
+      "ece_before_mean": 0.13895176753063437,
+      "ece_after_mean": 0.1293031487755619,
+      "ensemble": {
+        "auroc": 0.8731946589154329,
+        "auroc_ci95": [
+          0.8326255291119771,
+          0.9085804375164166
+        ],
+        "auprc": 0.6558102632977142,
+        "auprc_ci95": [
+          0.560606723946372,
+          0.744303905873668
+        ],
+        "sens_at_90_spec": 0.6422018348623854,
+        "spec_at_90_sens": 0.6376237623762376,
+        "operating_point": {
+          "threshold": 0.4097522000274626,
+          "sensitivity": 0.8165137614678899,
+          "specificity": 0.7960396039603961,
+          "precision": 0.4635416666666667,
+          "f1": 0.5913621262458472,
+          "accuracy": 0.7996742671009772,
+          "tp": 89,
+          "fp": 103,
+          "fn": 20,
+          "tn": 402
+        },
+        "temperature": 0.8762387880366599,
+        "ece_before": 0.13895176753063437,
+        "ece_after": 0.1293031487755619,
+        "risk_coverage": {
+          "1.0": {
+            "accuracy": 0.7996742671009772,
+            "sensitivity": 0.8165137614678899,
+            "specificity": 0.7960396039603961,
+            "kept": 614
+          },
+          "0.9": {
+            "accuracy": 0.8589511754068716,
+            "sensitivity": 0.7849462365591398,
+            "specificity": 0.8739130434782608,
+            "kept": 553
+          },
+          "0.8": {
+            "accuracy": 0.890020366598778,
+            "sensitivity": 0.8,
+            "specificity": 0.9088669950738916,
+            "kept": 491
+          },
+          "0.7": {
+            "accuracy": 0.913953488372093,
+            "sensitivity": 0.8235294117647058,
+            "specificity": 0.930939226519337,
+            "kept": 430
+          },
+          "0.6": {
+            "accuracy": 0.9320652173913043,
+            "sensitivity": 0.8518518518518519,
+            "specificity": 0.945859872611465,
+            "kept": 368
+          },
+          "0.5": {
+            "accuracy": 0.9413680781758957,
+            "sensitivity": 0.8604651162790697,
+            "specificity": 0.9545454545454546,
+            "kept": 307
+          },
+          "aurc": 0.07960268629122784,
+          "refer_rate_at_0.8_confidence": 0.35993485342019543
+        },
+        "prevalence_test": 0.1775244299674267,
+        "by_region": {
+          "hand": {
+            "n": 192,
+            "fractured": 57,
+            "auroc": 0.8272904483430799,
+            "sensitivity": 0.8947368421052632,
+            "specificity": 0.562962962962963,
+            "fp": 59,
+            "fn": 6
+          },
+          "hip": {
+            "n": 27,
+            "fractured": 2,
+            "auroc": 1.0,
+            "sensitivity": 1.0,
+            "specificity": 0.96,
+            "fp": 1,
+            "fn": 0
+          },
+          "leg": {
+            "n": 319,
+            "fractured": 32,
+            "auroc": 0.8493031358885019,
+            "sensitivity": 0.65625,
+            "specificity": 0.9233449477351916,
+            "fp": 22,
+            "fn": 11
+          },
+          "multiple": {
+            "n": 60,
+            "fractured": 16,
+            "auroc": 0.8522727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.5681818181818182,
+            "fp": 19,
+            "fn": 2
+          },
+          "shoulder": {
+            "n": 16,
+            "fractured": 2,
+            "auroc": 0.9285714285714286,
+            "sensitivity": 0.5,
+            "specificity": 0.8571428571428571,
+            "fp": 2,
+            "fn": 1
+          }
+        }
+      }
+    },
+    "dinov2_small": {
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "auroc_per_seed": {
+        "0": 0.8227995276591878,
+        "1": 0.9031610500499592,
+        "2": 0.8896266690889273
+      },
+      "auroc_mean": 0.8718624155993581,
+      "auroc_sd": 0.04302522628379615,
+      "sens_at_90_spec_mean": 0.6422018348623854,
+      "ece_before_mean": 0.149614439791965,
+      "ece_after_mean": 0.15244843638302125,
+      "ensemble": {
+        "auroc": 0.9018984467254064,
+        "auroc_ci95": [
+          0.8652043836814357,
+          0.9337609351310509
+        ],
+        "auprc": 0.7642673628304013,
+        "auprc_ci95": [
+          0.6829674540019227,
+          0.8301838728550248
+        ],
+        "sens_at_90_spec": 0.7431192660550459,
+        "spec_at_90_sens": 0.6594059405940593,
+        "operating_point": {
+          "threshold": 0.5346444930811007,
+          "sensitivity": 0.7155963302752294,
+          "specificity": 0.9188118811881189,
+          "precision": 0.6554621848739496,
+          "f1": 0.6842105263157895,
+          "accuracy": 0.8827361563517915,
+          "tp": 78,
+          "fp": 41,
+          "fn": 31,
+          "tn": 464
+        },
+        "temperature": 0.8941245016778364,
+        "ece_before": 0.09218256728057453,
+        "ece_after": 0.08489632628215209,
+        "risk_coverage": {
+          "1.0": {
+            "accuracy": 0.8827361563517915,
+            "sensitivity": 0.7155963302752294,
+            "specificity": 0.9188118811881189,
+            "kept": 614
+          },
+          "0.9": {
+            "accuracy": 0.9041591320072333,
+            "sensitivity": 0.7553191489361702,
+            "specificity": 0.934640522875817,
+            "kept": 553
+          },
+          "0.8": {
+            "accuracy": 0.924643584521385,
+            "sensitivity": 0.8051948051948052,
+            "specificity": 0.9468599033816425,
+            "kept": 491
+          },
+          "0.7": {
+            "accuracy": 0.9418604651162791,
+            "sensitivity": 0.8450704225352113,
+            "specificity": 0.9610027855153204,
+            "kept": 430
+          },
+          "0.6": {
+            "accuracy": 0.9510869565217391,
+            "sensitivity": 0.8709677419354839,
+            "specificity": 0.9673202614379085,
+            "kept": 368
+          },
+          "0.5": {
+            "accuracy": 0.9706840390879479,
+            "sensitivity": 0.9272727272727272,
+            "specificity": 0.9801587301587301,
+            "kept": 307
+          },
+          "aurc": 0.04481888470337106,
+          "refer_rate_at_0.8_confidence": 0.252442996742671
+        },
+        "prevalence_test": 0.1775244299674267,
+        "by_region": {
+          "hand": {
+            "n": 192,
+            "fractured": 57,
+            "auroc": 0.8639376218323587,
+            "sensitivity": 0.7368421052631579,
+            "specificity": 0.8148148148148148,
+            "fp": 25,
+            "fn": 15
+          },
+          "hip": {
+            "n": 27,
+            "fractured": 2,
+            "auroc": 1.0,
+            "sensitivity": 0.5,
+            "specificity": 1.0,
+            "fp": 0,
+            "fn": 1
+          },
+          "leg": {
+            "n": 319,
+            "fractured": 32,
+            "auroc": 0.8732578397212544,
+            "sensitivity": 0.5625,
+            "specificity": 0.9651567944250871,
+            "fp": 10,
+            "fn": 14
+          },
+          "multiple": {
+            "n": 60,
+            "fractured": 16,
+            "auroc": 0.9474431818181819,
+            "sensitivity": 0.9375,
+            "specificity": 0.8636363636363636,
+            "fp": 6,
+            "fn": 1
+          },
+          "shoulder": {
+            "n": 16,
+            "fractured": 2,
+            "auroc": 1.0,
+            "sensitivity": 1.0,
+            "specificity": 1.0,
+            "fp": 0,
+            "fn": 0
+          }
+        }
+      }
+    }
+  },
+  "comparison": {
+    "convnext_tiny_minus_cnn": {
+      "auroc_difference": 0.11809428649286946,
+      "ci95": [
+        0.08554556883255175,
+        0.15067440057929193
+      ]
+    },
+    "convnext_tiny_minus_dinov2_probe": {
+      "auroc_difference": 0.05437369425015892,
+      "ci95": [
+        0.026339709905883187,
+        0.08224856470142046
+      ]
+    },
+    "convnext_tiny_minus_dinov2_small": {
+      "auroc_difference": 0.025669906440185408,
+      "ci95": [
+        0.00547658086736248,
+        0.04488568098543152
+      ]
+    }
+  },
+  "yolo": {
+    "val": {
+      "map50": 0.3361531398565153,
+      "map50_95": 0.1353304802364959,
+      "precision": 0.4434177207666036,
+      "recall": 0.30985915492957744
+    },
+    "test": {
+      "map50": 0.32139274067847307,
+      "map50_95": 0.1427291105252983,
+      "precision": 0.43819188234538686,
+      "recall": 0.3458646616541353,
+      "image_level_auroc": 0.8823326369334181,
+      "image_level_sens_at_90_spec": 0.7522935779816514
+    },
+    "weights": "yolo11s.pt",
+    "epochs": 60,
+    "imgsz": 640
+  },
+  "released_weights": {
+    "convnext_tiny": {
+      "seed": 1,
+      "best_val_auroc": 0.9410573167408485
+    },
+    "cnn": {
+      "seed": 1,
+      "best_val_auroc": 0.8537287673721501
+    },
+    "dinov2_small": {
+      "seed": 1,
+      "best_val_auroc": 0.932709601235353
+    }
+  }
+}
