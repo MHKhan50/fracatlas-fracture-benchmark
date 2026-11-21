@@ -2,6 +2,7 @@
 
 ## 0.2.0 (2026-11-21)
 
+- Near-duplicate results of the Kaggle release run in `results/kaggle-2026-11-21/neardup.json`, the paper and the README; detector export from a copy of the weights.
 - Near-duplicate check between splits (`fracatlas_bench.neardup`): perceptual hashes, nearest training image for every validation and test image, test AUROC without near-copies; run in the release notebook.
 - Paper: shorter abstract; earlier FracAtlas classification results cited.
 - Paper (`paper/`), per-region and referral results, analysis files of the Kaggle run in `results/kaggle-2026-11-21/`.

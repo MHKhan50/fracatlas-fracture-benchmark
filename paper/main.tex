@@ -40,11 +40,12 @@ validation data only, with 1,000-sample bootstrap intervals on test. ConvNeXt-Ti
 model (AUROC $0.922 \pm 0.006$ over seeds; seed ensemble 0.928 [0.891, 0.957]), ahead of fine-tuned DINOv2 by
 $+0.026$ [$+0.005$, $+0.045$], the frozen probe by $+0.054$ [$+0.026$, $+0.082$] and the small CNN by $+0.118$
 [$+0.086$, $+0.151$]. At 90\% specificity it finds 81\% of fractured images, against 44\% for the small CNN.
-Fine-tuned DINOv2 varies much more between seeds ($\pm 0.043$). After temperature scaling ConvNeXt has an expected
+After temperature scaling ConvNeXt has an expected
 calibration error of 0.036 and refers 10\% of images at a confidence cut-off of 0.8 (small CNN: 45\%); referring its
 least confident fifth raises accuracy on the rest from 0.906 to 0.961. Leg radiographs are its weak point (AUROC
-0.880; 15 of 24 missed fractures). The detector ranks images well (AUROC 0.882) but localises moderately (mAP@0.5
-0.321). We release code, notebooks, per-seed logits and weights; the models are not for clinical use.
+0.880; 15 of 24 missed fractures). Removing test images that are exact or near copies of training images (perceptual
+hash) changes ConvNeXt's AUROC by at most 0.004. The detector ranks images well (AUROC 0.882) but localises moderately (mAP@0.5
+0.321). Code, notebooks and weights are released; the models are not for clinical use.
 \end{abstract}
 
 \section{Introduction}
@@ -166,6 +167,13 @@ $\max(p, 1-p)$ of the calibrated probability. We keep the most confident 100\% t
 sensitivity and accuracy on the kept images, and the share of images that a fixed confidence cut-off of 0.8 would
 refer. For each model, the weights released are those of the seed with the best \emph{validation} AUROC; the test set
 is never used for any choice.
+
+\paragraph{Near-duplicate check.} Because the split is by image, we look for test and validation images that are
+copies of a training image. Each image gets a 64-bit DCT perceptual hash (32$\times$32 grey image, top-left
+8$\times$8 DCT block against its median), and we record the Hamming distance to its nearest training image. We then
+recompute test AUROC of every seed ensemble without the test images whose nearest training image lies within a
+distance of 0, 4, 8 or 12 bits. The thresholds were fixed before looking at the results. This finds re-saved or
+slightly altered copies of the same radiograph; it cannot find a different view or a later X-ray of the same patient.
 
 \section{Results}
 
@@ -314,10 +322,43 @@ confidence, the detector reaches AUROC 0.882 and finds 75\% of fractured images 
 small CNN and the frozen probe, but below ConvNeXt. A practical system can therefore use the classifier to decide
 whether an image is likely to show a fracture and the detector to point to where.
 
+\paragraph{Duplicates between splits.} FracAtlas contains exact copies of the same radiograph under different file
+names: 20 test images and 23 validation images have a training image at Hamming distance 0, and 54 test images one
+within 4 bits (Table~\ref{tab:dup}). Visual inspection of the closest pairs confirms that the distance-0 pairs are
+the same image, and at least one of them carries opposite labels (IMG0004341, not fractured, in test; IMG0003034,
+fractured, in training). Removing them barely moves the results: ConvNeXt's ensemble AUROC goes from 0.928 to 0.926
+without exact copies and to 0.924 without copies within 4 bits, and the ranking of the four models is unchanged.
+Larger thresholds remove many images that are only similar radiographs (the median distance to the nearest training
+image is 10 bits), so we treat them as a stress test rather than as duplicate removal; even keeping only the 190 test
+images farthest from any training image, ConvNeXt stays at 0.929 [0.870, 0.970]. Near-copies are therefore not what
+drives the scores, although leakage between different images of one patient remains possible.
+
+\begin{table}[t]
+\centering
+\caption{Test AUROC of the seed ensembles after removing test images whose nearest training image (perceptual hash)
+lies within $d$ bits. Images (fractured) remaining in the second column.}
+\label{tab:dup}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+Removed & Test images & Small CNN & ConvNeXt-Tiny & DINOv2-S probe & DINOv2-S fine-tuned \\
+\midrule
+none            & 614 (109) & 0.809 & 0.928 & 0.873 & 0.902 \\
+$d = 0$         & 594 (105) & 0.806 & 0.926 & 0.869 & 0.899 \\
+$d \le 4$       & 560 (103) & 0.803 & 0.924 & 0.865 & 0.896 \\
+$d \le 8$       & 389 (75)  & 0.807 & 0.927 & 0.873 & 0.903 \\
+$d \le 12$      & 190 (42)  & 0.812 & 0.929 & 0.856 & 0.914 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Limitations}
 
 FracAtlas releases no patient identifiers, so images of the same patient may fall into both training and test sets;
-this can inflate test scores and is the most important caveat of every FracAtlas result, including ours. All images
+this can inflate test scores and is the most important caveat of every FracAtlas result, including ours. Our
+hash check rules out exact and near copies as the source of the scores, but not different images of one patient.
+The dataset also contains duplicated radiographs, some with conflicting labels, which any FracAtlas split inherits. All images
 come from three hospitals in one country, and there is no external test set, so the numbers do not transfer to other
 hospitals, devices or populations without new testing. The test set holds only 109 fractured images, and the hip-only
 and shoulder-only groups contain two fractured test images each, so per-region estimates are uncertain and for those
@@ -335,7 +376,8 @@ ahead of DINOv2, whose frozen features are strong but whose fine-tuning varies b
 its weak point, with half of the leg fractures missed at a shared threshold. After temperature scaling, ConvNeXt is
 well calibrated and would refer only one image in ten at a confidence cut-off of 0.8; referral mainly removes false
 alarms, so it does not replace a region-aware threshold for leg images. A YOLO11s
-detector ranks images nearly as well but localises fractures only moderately. We suggest that future FracAtlas results
+detector ranks images nearly as well but localises fractures only moderately. FracAtlas contains exact duplicates
+across any image-level split, but removing them leaves the results unchanged. We suggest that future FracAtlas results
 report several seeds, intervals, calibration and a referral curve, and state how the split was made.
 
 \section*{Code and data availability}

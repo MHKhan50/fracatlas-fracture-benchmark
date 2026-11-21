@@ -62,6 +62,15 @@ leg fractures; leg images are 15 of its 24 misses. Referring the least confident
 images from 0.906 to 0.961 (sensitivity 0.78 to 0.82); referring half gives 0.984 (sensitivity 0.90). Full numbers:
 `results/kaggle-2026-11-21/analysis.json`.
 
+**Duplicates between splits (`results/kaggle-2026-11-21/neardup.json`):** 20 test and 23 validation images are exact
+copies of training images (perceptual-hash distance 0; at least one with the opposite label), 54 test images lie within
+4 bits. Without them, ensemble AUROC is 0.926 (exact copies removed) and 0.924 (within 4 bits) for ConvNeXt-Tiny, and
+no model moves by more than 0.008; the ranking is unchanged.
+
+**Released ConvNeXt-Tiny (seed 1) alone on test:** AUROC 0.917; at its validation threshold (0.37, temperature 1.75)
+sensitivity 0.75 and specificity 0.93; ECE 0.050; 14% of images referred at confidence below 0.8. The ONNX export
+matches PyTorch to 3e-6.
+
 In short: pretraining matters (every pretrained model beats the CNN trained from scratch), ConvNeXt-Tiny is both the
 best and the most stable across seeds, DINOv2 features are strong frozen but fine-tuning them varies a lot between
 seeds, and the detector ranks images well but localises fractures only moderately.
@@ -94,7 +103,7 @@ On Kaggle: import `notebooks/kaggle_fracatlas.ipynb` from this repository (GPU T
 
 ## Limitations
 
-- No patient ids: the image-level split may place images of one patient in train and test, which can inflate test scores. `fracatlas_bench.neardup` checks for near-copies of training images among validation and test images (perceptual hashes) and recomputes test AUROC without them; it cannot detect different views or visits of the same patient.
+- No patient ids: the image-level split may place images of one patient in train and test, which can inflate test scores. FracAtlas also holds exact duplicate radiographs (some with conflicting labels); removing test images that copy a training image leaves the results unchanged (see above), but different views or visits of the same patient cannot be detected.
 - One dataset from one country; no external validation. Results do not transfer to other hospitals, devices or populations without testing.
 - Most fractured hip and shoulder images are also flagged with another region (the "multiple" group); hip-only and shoulder-only fractures number 10 each, 2 each in the test split, so those per-region values are uninformative.
 - Image-level labels only for the classifiers; YOLO uses the released boxes.
