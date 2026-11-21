@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fracture X-ray Check (research demo)</title>
+<style>
+  :root { --blue:#1F4E9C; --yellow:#E3A800; --red:#C8102E; --green:#5FA65A; --ink:#1d2433; --muted:#5b6475; --line:#dde2ea; --bg:#f6f8fb; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg); }
+  header { background:var(--blue); color:#fff; padding:18px 24px; }
+  header h1 { margin:0; font-size:21px; font-weight:650; }
+  header p { margin:4px 0 0; opacity:.9; font-size:14px; }
+  .warn { background:#fff4d6; border-left:4px solid var(--yellow); padding:10px 14px; margin:16px 24px 0; font-size:14px; }
+  main { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:18px; padding:18px 24px 30px; }
+  @media (max-width:860px){ main { grid-template-columns:1fr; } }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .drop { border:2px dashed var(--line); border-radius:10px; padding:22px; text-align:center; color:var(--muted); cursor:pointer; }
+  .drop.over { border-color:var(--blue); color:var(--blue); }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  button { font:inherit; border:1px solid var(--blue); background:#fff; color:var(--blue); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  button.primary { background:var(--blue); color:#fff; }
+  button:disabled { opacity:.5; cursor:default; }
+  canvas#view { width:100%; height:auto; margin-top:12px; border-radius:8px; background:#111; display:none; }
+  .big { font-size:34px; font-weight:700; margin:2px 0; }
+  .pill { display:inline-block; padding:3px 10px; border-radius:999px; color:#fff; font-weight:600; font-size:14px; }
+  .meter { height:12px; background:#e9edf3; border-radius:6px; position:relative; margin:10px 0 4px; }
+  .meter > span { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--blue); }
+  .meter > i { position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); }
+  .small { color:var(--muted); font-size:13px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; margin-top:8px; }
+  td, th { padding:4px 6px; border-bottom:1px solid var(--line); text-align:left; }
+  #status { margin-top:8px; font-size:13px; color:var(--muted); min-height:18px; }
+  a { color:var(--blue); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fracture X-ray Check</h1>
+  <p>ConvNeXt-Tiny classifier and YOLO11s detector trained on FracAtlas (hand, leg, hip, shoulder). Runs entirely in your browser; the image is not uploaded anywhere.</p>
+</header>
+<div class="warn"><b>Research demo, not a medical device.</b> Scores are model outputs against one dataset from three hospitals in Bangladesh. They are not a diagnosis and must not be used for patient care.</div>
+<main>
+  <section class="card">
+    <div id="drop" class="drop">Drop an X-ray image here (JPEG or PNG), or click to choose a file
+      <input id="file" type="file" accept="image/*" hidden>
+    </div>
+    <div class="row">
+      <button data-sample="samples/fractured.jpg">Sample: fractured</button>
+      <button data-sample="samples/not_fractured.jpg">Sample: not fractured</button>
+      <label class="small" style="align-self:center"><input type="checkbox" id="boxes" checked> show detector boxes</label>
+    </div>
+    <canvas id="view"></canvas>
+    <div id="status">Loading models (about 150 MB on first visit; cached afterwards)...</div>
+  </section>
+  <section class="card" id="result">
+    <div class="small">Fracture probability (calibrated)</div>
+    <div class="big" id="prob">--</div>
+    <div class="meter"><span id="bar" style="width:0"></span><i id="thr"></i></div>
+    <div class="small" id="thrtext"></div>
+    <p id="verdict"></p>
+    <p class="small" id="boxtext"></p>
+    <hr style="border:none;border-top:1px solid var(--line)">
+    <div class="small"><b>How to read this.</b> The probability is temperature-scaled on validation data. The verdict uses
+      the validation threshold. If the model's confidence (the larger of p and 1&nbsp;&minus;&nbsp;p) is below 0.8 it asks
+      for a clinician instead of answering. Boxes come from a separate detector and are less reliable than the classifier.</div>
+    <table id="facts"></table>
+    <p class="small">Code and paper: <a href="https://github.com/MHKhan50/fracatlas-fracture-benchmark">GitHub</a> &middot;
+      model: <a href="https://huggingface.co/MHkhan50/fracatlas-convnext-tiny">Hugging Face</a> &middot;
+      data: FracAtlas (Abedeen et al., 2023, CC BY 4.0).</p>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+<script type="module">
+import { letterboxParams, nms, decodeYolo, verdict } from "./core.mjs";
+const BASE = "https://huggingface.co/MHkhan50/fracatlas-convnext-tiny/resolve/main/";
+const $ = (id) => document.getElementById(id);
+let cfg, clf, det, lastImg = null, lastBoxes = [];
+ort.env.wasm.numThreads = Math.min(4, navigator.hardwareConcurrency || 1);
+
+function pixels(img, size, padValue, fit) {
+  const c = document.createElement("canvas"); c.width = c.height = size;
+  const g = c.getContext("2d");
+  g.fillStyle = `rgb(${padValue},${padValue},${padValue})`; g.fillRect(0, 0, size, size);
+  const p = letterboxParams(img.naturalWidth || img.width, img.naturalHeight || img.height, size, fit);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  g.drawImage(img, p.left, p.top, p.w, p.h);
+  return { data: g.getImageData(0, 0, size, size).data, p };
+}
+
+function classifierTensor(img) {
+  const S = cfg.classifier.size, { data } = pixels(img, S, 0, "floor");
+  const t = new Float32Array(3 * S * S), n = S * S;
+  for (let i = 0; i < n; i++) {
+    const v = (0.299 * data[4 * i] + 0.587 * data[4 * i + 1] + 0.114 * data[4 * i + 2]) / 255;
+    for (let c = 0; c < 3; c++) t[c * n + i] = (v - cfg.classifier.mean[c]) / cfg.classifier.std[c];
+  }
+  return new ort.Tensor("float32", t, [1, 3, S, S]);
+}
+
+function detectorTensor(img) {
+  const S = cfg.detector.imgsz, { data, p } = pixels(img, S, 114, "round");
+  const t = new Float32Array(3 * S * S), n = S * S;
+  for (let i = 0; i < n; i++) {
+    const v = (0.299 * data[4 * i] + 0.587 * data[4 * i + 1] + 0.114 * data[4 * i + 2]) / 255;
+    t[i] = t[n + i] = t[2 * n + i] = v;
+  }
+  return { tensor: new ort.Tensor("float32", t, [1, 3, S, S]), p };
+}
+
+function draw() {
+  if (!lastImg) return;
+  const v = $("view"), w = lastImg.naturalWidth, h = lastImg.naturalHeight;
+  v.width = w; v.height = h; v.style.display = "block";
+  const g = v.getContext("2d"); g.drawImage(lastImg, 0, 0);
+  if (!$("boxes").checked) return;
+  g.lineWidth = Math.max(2, Math.round(w / 300)); g.font = `${Math.max(14, Math.round(w / 45))}px system-ui`;
+  for (const b of lastBoxes) {
+    g.strokeStyle = "#C8102E"; g.strokeRect(b.x1, b.y1, b.x2 - b.x1, b.y2 - b.y1);
+    const label = `fracture ${b.score.toFixed(2)}`, tw = g.measureText(label).width + 8, th = parseInt(g.font) + 6;
+    g.fillStyle = "#C8102E"; g.fillRect(b.x1, Math.max(0, b.y1 - th), tw, th);
+    g.fillStyle = "#fff"; g.fillText(label, b.x1 + 4, Math.max(th - 6, b.y1 - 6));
+  }
+}
+
+async function analyse(img) {
+  lastImg = img; lastBoxes = [];
+  $("status").textContent = "Analysing..."; draw();
+  const t0 = performance.now();
+  const z = (await clf.run({ image: classifierTensor(img) })).logit.data[0];
+  const { tensor, p } = detectorTensor(img);
+  const out = await det.run({ [det.inputNames[0]]: tensor });
+  const o = out[det.outputNames[0]];
+  lastBoxes = nms(decodeYolo(o.data, o.dims[2], p, cfg.detector.box_score_min), cfg.detector.nms_iou);
+  const r = verdict(z, cfg.classifier);
+  $("prob").textContent = (100 * r.p).toFixed(1) + "%";
+  $("bar").style.width = (100 * r.p).toFixed(1) + "%";
+  $("bar").style.background = r.kind === "refer" ? "#E3A800" : (r.kind === "fracture" ? "#C8102E" : "#5FA65A");
+  const colour = { fracture: "#C8102E", none: "#5FA65A", refer: "#E3A800" }[r.kind];
+  $("verdict").innerHTML = `<span class="pill" style="background:${colour}">${r.title}</span> ${r.text}`;
+  $("boxtext").textContent = lastBoxes.length
+    ? `Detector: ${lastBoxes.length} box(es); highest score ${lastBoxes[0].score.toFixed(2)}.`
+    : "Detector: no box above 0.25.";
+  $("status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+  draw();
+}
+
+function load(src) {
+  const img = new Image();
+  img.onload = () => analyse(img).catch((e) => ($("status").textContent = "Error: " + e.message));
+  img.onerror = () => ($("status").textContent = "Could not read this image.");
+  img.src = src;
+}
+
+async function init() {
+  try {
+    cfg = await (await fetch(BASE + "config.json")).json();
+    const opts = { executionProviders: ["wasm"] };
+    [clf, det] = await Promise.all([
+      ort.InferenceSession.create(BASE + cfg.classifier.file, opts),
+      ort.InferenceSession.create(BASE + cfg.detector.file, opts)]);
+    $("thr").style.left = (100 * cfg.classifier.threshold).toFixed(1) + "%";
+    $("thrtext").textContent = `Mark = validation threshold ${cfg.classifier.threshold.toFixed(2)}`;
+    const t = cfg.classifier.test;
+    $("facts").innerHTML = `<tr><th colspan=2>Released model on the held-out test set (${t.images} images, ${t.fractured} fractured)</th></tr>
+      <tr><td>AUROC</td><td>${t.auroc.toFixed(3)}</td></tr>
+      <tr><td>Sensitivity / specificity at the threshold</td><td>${t.sensitivity_at_threshold.toFixed(2)} / ${t.specificity_at_threshold.toFixed(2)}</td></tr>
+      <tr><td>Sensitivity at 90% specificity</td><td>${t.sens_at_90_spec.toFixed(2)}</td></tr>
+      <tr><td>Share referred (confidence &lt; 0.8)</td><td>${(100 * t.referred_share).toFixed(0)}%</td></tr>`;
+    $("status").textContent = "Ready. Choose an image or a sample.";
+  } catch (e) { $("status").textContent = "Could not load the models: " + e.message; }
+}
+
+$("drop").onclick = () => $("file").click();
+$("file").onchange = (e) => e.target.files[0] && load(URL.createObjectURL(e.target.files[0]));
+$("drop").ondragover = (e) => { e.preventDefault(); $("drop").classList.add("over"); };
+$("drop").ondragleave = () => $("drop").classList.remove("over");
+$("drop").ondrop = (e) => { e.preventDefault(); $("drop").classList.remove("over"); const f = e.dataTransfer.files[0]; f && load(URL.createObjectURL(f)); };
+document.querySelectorAll("[data-sample]").forEach((b) => (b.onclick = () => clf && load(b.dataset.sample)));
+$("boxes").onchange = draw;
+init();
+</script>
+</body>
+</html>

@@ -36,7 +36,36 @@
 
 ## Results
 
-Results will be added from the Kaggle run (`notebooks/kaggle_fracatlas.ipynb`).
+Kaggle run of `notebooks/kaggle_fracatlas.ipynb` (one T4 GPU). Test split: 614 images, 109 fractured. Three seeds per
+fine-tuned model; the seed ensemble averages the logits; 95% intervals from 1,000 bootstrap resamples of test images.
+Sensitivity at 90% specificity, ECE and the referral rate are for the seed ensemble.
+
+| Model | AUROC, mean ± SD | Seed ensemble AUROC [95% CI] | Sens. at 90% spec. | ECE before → after temperature scaling | Referred (confidence < 0.8) |
+|---|---|---|---|---|---|
+| Small CNN | 0.791 ± 0.039 | 0.809 [0.763, 0.852] | 0.440 | 0.182 → 0.151 | 45% |
+| **ConvNeXt-Tiny** | **0.922 ± 0.006** | **0.928 [0.891, 0.957]** | **0.807** | 0.057 → **0.036** | **10%** |
+| DINOv2-S frozen probe | 0.873 | 0.873 [0.833, 0.909] | 0.642 | 0.139 → 0.129 | 36% |
+| DINOv2-S fine-tuned | 0.872 ± 0.043 | 0.902 [0.865, 0.934] | 0.743 | 0.092 → 0.085 | 25% |
+
+Paired differences of ensemble AUROC (same bootstrap resamples), ConvNeXt-Tiny minus:
+small CNN +0.118 [+0.086, +0.151]; DINOv2 probe +0.054 [+0.026, +0.082]; DINOv2 fine-tuned +0.026 [+0.005, +0.045].
+
+**YOLO11s detector (test):** box precision 0.438, recall 0.346, mAP@0.5 0.321, mAP@0.5:0.95 0.143; as an image
+classifier (highest box confidence) AUROC 0.882 and sensitivity 0.752 at 90% specificity.
+
+**Released weights (best validation AUROC, never chosen on test):** ConvNeXt-Tiny seed 1 (0.941), DINOv2-S seed 1
+(0.933), small CNN seed 1 (0.854).
+
+In short: pretraining matters (every pretrained model beats the CNN trained from scratch), ConvNeXt-Tiny is both the
+best and the most stable across seeds, DINOv2 features are strong frozen but fine-tuning them varies a lot between
+seeds, and the detector ranks images well but localises fractures only moderately.
+
+## Release: ONNX models and browser app
+
+`notebooks/kaggle_fracatlas_release.ipynb` (CPU) takes the output of the training notebook, exports the released
+ConvNeXt-Tiny and the YOLO11s detector to ONNX (checked against PyTorch), fits that seed's temperature and threshold
+on validation data, and, only when `PUBLISH = True`, uploads the model card and the static browser app in `space/`
+(`node space/test_core.mjs` tests its pre- and post-processing).
 
 ## Quick start
 

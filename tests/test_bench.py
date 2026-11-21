@@ -110,3 +110,18 @@ def test_truncated_jpeg_is_decoded(tmp_path):
     arr = cache_images([str(good), str(cut)], 32, tmp_path / "c" / "cache.npy")
     assert arr.shape == (2, 32, 32)
     assert json.loads((tmp_path / "c" / "truncated_images.json").read_text()) == [str(cut)]
+
+
+def test_release_calibration_uses_validation_only():
+    import numpy as np
+    import pandas as pd
+    from fracatlas_bench.release import calibration_for_seed
+    rng = np.random.default_rng(0)
+    y_val, y_test = rng.integers(0, 2, 200), rng.integers(0, 2, 150)
+    split = pd.DataFrame({"split": ["val"] * 200 + ["test"] * 150, "fractured": np.r_[y_val, y_test]})
+    z_val = 3 * (2 * y_val - 1) + rng.normal(0, 2, 200)
+    z_test = 3 * (2 * y_test - 1) + rng.normal(0, 2, 150)
+    a = calibration_for_seed(split, {"val": z_val, "test": z_test})
+    b = calibration_for_seed(split, {"val": z_val, "test": -z_test})  # changing test logits must not move T or threshold
+    assert a["temperature"] == b["temperature"] and a["threshold"] == b["threshold"]
+    assert 0.0 < a["threshold"] < 1.0 and a["test"]["auroc"] > 0.8 and a["test"]["images"] == 150
