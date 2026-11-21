@@ -1,4 +1,4 @@
-\begin{thebibliography}{17}
+\begin{thebibliography}{19}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -32,6 +32,21 @@ Amna Hassan, Ilsa, Nouman Munib, Aneeqa Batool, and Hamail Noor.
 \newblock Fracture detection in x-rays using custom convolutional neural
   network ({CNN}) and transfer learning models.
 \newblock arXiv:2509.06228, 2025.
+
+\bibitem[Hussain(2026{\natexlab{a}})]{hussain2026lung}
+Muzammal Hussain.
+\newblock {Class Weights Miscalibrate Chest X-ray Classifiers by a Predictable
+  Amount: Calibration, Prevalence Shift and Subgroup Noise in a Reproducible
+  ChestX-ray14 Baseline}.
+\newblock Zenodo, 2026{\natexlab{a}}.
+\newblock URL \url{https://doi.org/10.5281/zenodo.23840865}.
+
+\bibitem[Hussain(2026{\natexlab{b}})]{hussain2026ptbxl}
+Muzammal Hussain.
+\newblock {Small Convolutional Networks for PTB-XL Superclasses: A Five-Seed
+  Comparison with Patient-Level Intervals and Selective Prediction}.
+\newblock Zenodo, 2026{\natexlab{b}}.
+\newblock URL \url{https://doi.org/10.5281/zenodo.24407647}.
 
 \bibitem[Jocher and Qiu(2024)]{jocher2024yolo11}
 Glenn Jocher and Jing Qiu.
