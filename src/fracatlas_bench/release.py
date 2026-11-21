@@ -74,8 +74,12 @@ def export_classifier(weights: Path, out: Path, size: int = 384) -> dict:
 
 def export_detector(weights: Path, out: Path, imgsz: int = 640) -> dict:
     from ultralytics import YOLO
-    path = YOLO(str(weights)).export(format="onnx", imgsz=imgsz, opset=17, dynamic=False, simplify=False)
+    # Ultralytics writes the .onnx next to the weights, and Kaggle inputs are read-only: export from a copy.
+    local = out.parent / "_yolo_export.pt"
+    shutil.copy(weights, local)
+    path = YOLO(str(local)).export(format="onnx", imgsz=imgsz, opset=17, dynamic=False, simplify=False)
     shutil.move(path, out)
+    local.unlink()
     return {"imgsz": imgsz, "output": "[1, 5, N]: cx, cy, w, h, fracture score (no NMS inside)"}
 
 
