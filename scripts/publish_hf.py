@@ -28,7 +28,7 @@ def model_card(cfg: dict) -> str:
                      for k, v in cfg["ensemble_results"].items())
     return f"""---
 license: mit
-library_name: timm
+library_name: onnx
 pipeline_tag: image-classification
 tags: [medical-imaging, x-ray, fracture-detection, convnext, yolo, onnx, fracatlas]
 datasets: [FracAtlas]
@@ -61,6 +61,35 @@ centred; scale to [0, 1]; repeat to three channels; normalise with ImageNet mean
 Probability = sigmoid(logit / T) with **T = {c['temperature']:.3f}**. Decision threshold (Youden, on validation)
 = **{c['threshold']:.3f}**. If max(p, 1 - p) < {c['refer_below_confidence']}, refer the image instead of answering.
 
+## How to use (Python, ONNX Runtime)
+
+```python
+import json, numpy as np, onnxruntime as ort
+from PIL import Image
+from huggingface_hub import hf_hub_download
+
+repo = "MHkhan50/fracatlas-convnext-tiny"
+cfg = json.load(open(hf_hub_download(repo, "config.json")))["classifier"]
+sess = ort.InferenceSession(hf_hub_download(repo, cfg["file"]))
+
+img = Image.open("xray.jpg").convert("L")          # your X-ray
+S = cfg["size"]; s = S / max(img.size)
+w, h = max(1, round(img.width * s)), max(1, round(img.height * s))
+canvas = Image.new("L", (S, S))                     # black square, image centred
+canvas.paste(img.resize((w, h), Image.BILINEAR), ((S - w) // 2, (S - h) // 2))
+g = np.asarray(canvas, np.float32) / 255
+x = np.stack([(g - m) / sd for m, sd in zip(cfg["mean"], cfg["std"])])[None].astype(np.float32)
+
+p = float(1 / (1 + np.exp(-sess.run(None, {{"image": x}})[0][0, 0] / cfg["temperature"])))
+if max(p, 1 - p) < cfg["refer_below_confidence"]:
+    print(f"p = {{p:.3f}}: unsure, refer to a clinician")
+else:
+    print(f"p = {{p:.3f}}:", "fracture likely" if p >= cfg["threshold"] else "no fracture found")
+```
+
+In PyTorch: `timm.create_model("convnext_tiny.fb_in22k_ft_in1k", pretrained=False, num_classes=1)`, then
+`load_state_dict(torch.load("convnext_tiny_fracatlas.pt")["state_dict"])`, with the same preprocessing.
+
 ## Which weights, and how they were chosen
 
 Seed {c['seed']} of three, chosen by **validation** AUROC ({c['best_val_auroc']:.3f}); the test set was not used for
@@ -71,7 +100,7 @@ any choice. The ONNX export matches PyTorch to {c['onnx_check']:.1e} (largest ab
 This released seed: AUROC {t['auroc']:.3f}; sensitivity {t['sensitivity_at_threshold']:.2f} and specificity
 {t['specificity_at_threshold']:.2f} at the threshold; sensitivity {t['sens_at_90_spec']:.2f} at 90% specificity;
 ECE after temperature scaling {t['ece_calibrated']:.3f}; {100 * t['referred_share']:.0f}% of images referred at
-confidence < 0.8. Detector box mAP@0.5 on the test images: {d['test_map50']:.3f}.
+confidence < 0.8. Detector box mAP at IoU 0.5 on the test images: {d['test_map50']:.3f}.
 
 Seed ensembles (three seeds, logits averaged), test AUROC with 95% bootstrap intervals:
 
@@ -136,10 +165,18 @@ def samples(split_csv: Path, images_root: Path, out: Path) -> None:
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--release", default="release")
-    p.add_argument("--split", required=True)
-    p.add_argument("--images", required=True, help="FracAtlas folder (for the two sample images)")
+    p.add_argument("--split")
+    p.add_argument("--images", help="FracAtlas folder (for the two sample images)")
     p.add_argument("--space-dir", default="space")
+    p.add_argument("--card-only", action="store_true", help="only rewrite the model card from the published config.json")
     a = p.parse_args()
+    if a.card_only:
+        from huggingface_hub import HfApi, hf_hub_download
+        cfg = json.loads(Path(hf_hub_download(MODEL_REPO, "config.json")).read_text())
+        HfApi().upload_file(path_or_fileobj=model_card(cfg).encode(), path_in_repo="README.md", repo_id=MODEL_REPO,
+                            commit_message="Model card: ONNX usage example, library tag")
+        print(f"https://huggingface.co/{MODEL_REPO}")
+        return
     from huggingface_hub import HfApi
     api = HfApi(token=os.environ["HF_TOKEN"])
     rel = Path(a.release)
