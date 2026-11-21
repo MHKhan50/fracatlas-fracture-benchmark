@@ -1,4 +1,4 @@
-\begin{thebibliography}{15}
+\begin{thebibliography}{17}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -25,6 +25,13 @@ Chuan Guo, Geoff Pleiss, Yu~Sun, and Kilian~Q. Weinberger.
 \newblock On calibration of modern neural networks.
 \newblock In \emph{Proceedings of the 34th International Conference on Machine
   Learning (ICML)}, volume~70 of \emph{PMLR}, pages 1321--1330, 2017.
+
+\bibitem[Hassan et~al.(2025)Hassan, Ilsa, Munib, Batool, and
+  Noor]{hassan2025fracture}
+Amna Hassan, Ilsa, Nouman Munib, Aneeqa Batool, and Hamail Noor.
+\newblock Fracture detection in x-rays using custom convolutional neural
+  network ({CNN}) and transfer learning models.
+\newblock arXiv:2509.06228, 2025.
 
 \bibitem[Jocher and Qiu(2024)]{jocher2024yolo11}
 Glenn Jocher and Jing Qiu.
@@ -97,6 +104,12 @@ Pranav Rajpurkar, Jeremy Irvin, Aarti Bagul, Daisy Ding, Tony Duan, Hershel
 \newblock {MURA}: Large dataset for abnormality detection in musculoskeletal
   radiographs.
 \newblock arXiv:1712.06957, 2017.
+
+\bibitem[Ruhi et~al.(2024)Ruhi, Nahar, and Ashrafi]{ruhi2024attention}
+Sayeda Sanzida~Ferdous Ruhi, Fokrun Nahar, and Adnan~Ferdous Ashrafi.
+\newblock A novel approach towards the classification of bone fracture from
+  musculoskeletal radiography images using attention based transfer learning.
+\newblock arXiv:2410.14833, 2024.
 
 \bibitem[Varoquaux and Cheplygina(2022)]{varoquaux2022failures}
 Ga{\"e}l Varoquaux and Veronika Cheplygina.

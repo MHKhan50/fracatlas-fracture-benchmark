@@ -31,25 +31,20 @@
 
 \begin{abstract}
 \noindent
-FracAtlas is the largest openly licensed set of musculoskeletal X-rays with expert fracture labels, boxes and masks,
-but it was released without a classification baseline or a fixed test split, and published results on it are mostly
-single runs reporting accuracy. We fix a 70/15/15 split stratified by label and body region (614 test images, 109
-with fractures) and compare four image-level classifiers, each trained with three seeds: a small convolutional
-network trained from scratch, ConvNeXt-Tiny pretrained on ImageNet, and a DINOv2 ViT-S/14 used either as a frozen
-feature extractor with a logistic-regression probe or fine-tuned end to end. A YOLO11s detector is trained on the
-released boxes. Thresholds and temperatures are fitted on validation data only, and test intervals come from 1,000
-bootstrap resamples. ConvNeXt-Tiny is the strongest and most stable model (AUROC $0.922 \pm 0.006$ over seeds; seed
-ensemble 0.928 [0.891, 0.957]), ahead of the fine-tuned DINOv2 ensemble by $+0.026$ [$+0.005$, $+0.045$], the frozen
-DINOv2 probe by $+0.054$ [$+0.026$, $+0.082$] and the small CNN by $+0.118$ [$+0.086$, $+0.151$]. At 90\%
-specificity it finds 81\% of fractured images, against 44\% for the small CNN. Fine-tuning DINOv2 varies much more
-between seeds ($\pm 0.043$) than ConvNeXt does. After temperature scaling ConvNeXt has an expected calibration error
-of 0.036 and refers only 10\% of test images at a confidence cut-off of 0.8, while the small CNN would refer 45\%.
-Used as an image classifier through its highest box score, the detector reaches AUROC 0.882, but its box mAP@0.5 is
-only 0.321. Leg radiographs are the weak point: ConvNeXt's region AUROC there is 0.880, and 15 of its 24 missed
-fractures at the validation threshold are leg images. Referring the least confident fifth of images raises its
-accuracy on the kept images from 0.906 to 0.961 and its sensitivity from 0.78 to 0.82.
-We release the code, a Kaggle notebook, per-seed logits and the ConvNeXt weights chosen on validation AUROC. The
-models are research artefacts and are not for clinical use.
+FracAtlas is the largest openly licensed set of musculoskeletal X-rays with expert fracture labels and boxes, but it
+has no classification baseline or fixed test split, and later results on it are single-run accuracies on splits of
+their own. We fix a 70/15/15 split stratified by label and body region (614 test images, 109 fractured) and train four
+classifiers with three seeds each: a small CNN from scratch, ImageNet-pretrained ConvNeXt-Tiny, and DINOv2 ViT-S/14 as
+a frozen probe or fine-tuned; a YOLO11s detector is trained on the boxes. Thresholds and temperatures are fitted on
+validation data only, with 1,000-sample bootstrap intervals on test. ConvNeXt-Tiny is the strongest and most stable
+model (AUROC $0.922 \pm 0.006$ over seeds; seed ensemble 0.928 [0.891, 0.957]), ahead of fine-tuned DINOv2 by
+$+0.026$ [$+0.005$, $+0.045$], the frozen probe by $+0.054$ [$+0.026$, $+0.082$] and the small CNN by $+0.118$
+[$+0.086$, $+0.151$]. At 90\% specificity it finds 81\% of fractured images, against 44\% for the small CNN.
+Fine-tuned DINOv2 varies much more between seeds ($\pm 0.043$). After temperature scaling ConvNeXt has an expected
+calibration error of 0.036 and refers 10\% of images at a confidence cut-off of 0.8 (small CNN: 45\%); referring its
+least confident fifth raises accuracy on the rest from 0.906 to 0.961. Leg radiographs are its weak point (AUROC
+0.880; 15 of 24 missed fractures). The detector ranks images well (AUROC 0.882) but localises moderately (mAP@0.5
+0.321). We release code, notebooks, per-seed logits and weights; the models are not for clinical use.
 \end{abstract}
 
 \section{Introduction}
@@ -64,9 +59,11 @@ and an orthopaedic surgeon, with 922 fracture boxes and masks, under a CC BY 4.0
 
 The dataset paper validated only detection and segmentation, with YOLOv8 trained on fractured images and evaluated
 on a validation subset \citep{abedeen2023fracatlas}. It gives no image-level classification baseline and no fixed
-test split. Later work on FracAtlas often reports accuracy from a single run on a split of its own, which says little
-about how much of a difference between models is due to the seed or the test sample, and nothing about what a model
-does when it is unsure. These are the questions a reader needs answered before a model is used to triage images.
+test split. Later work reports accuracy, precision and F1 from a single run on a split of its own, without AUROC or
+intervals: for example 90.5\% with attention-based transfer learning \citep{ruhi2024attention} and 96.0\% with a
+custom CNN \citep{hassan2025fracture}. With 82\% of images non-fractured, accuracy alone is hard to interpret, and
+single runs on different splits say little about how much of a difference between models is due to the seed or the
+test sample, and nothing about what a model does when it is unsure. These are the questions a reader needs answered before a model is used to triage images.
 
 \noindent This paper asks four narrow questions:
 \begin{enumerate}

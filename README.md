@@ -94,7 +94,7 @@ On Kaggle: import `notebooks/kaggle_fracatlas.ipynb` from this repository (GPU T
 
 ## Limitations
 
-- No patient ids: the image-level split may place images of one patient in train and test, which can inflate test scores.
+- No patient ids: the image-level split may place images of one patient in train and test, which can inflate test scores. `fracatlas_bench.neardup` checks for near-copies of training images among validation and test images (perceptual hashes) and recomputes test AUROC without them; it cannot detect different views or visits of the same patient.
 - One dataset from one country; no external validation. Results do not transfer to other hospitals, devices or populations without testing.
 - Most fractured hip and shoulder images are also flagged with another region (the "multiple" group); hip-only and shoulder-only fractures number 10 each, 2 each in the test split, so those per-region values are uninformative.
 - Image-level labels only for the classifiers; YOLO uses the released boxes.

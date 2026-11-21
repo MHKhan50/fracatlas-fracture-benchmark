@@ -125,3 +125,19 @@ def test_release_calibration_uses_validation_only():
     b = calibration_for_seed(split, {"val": z_val, "test": -z_test})  # changing test logits must not move T or threshold
     assert a["temperature"] == b["temperature"] and a["threshold"] == b["threshold"]
     assert 0.0 < a["threshold"] < 1.0 and a["test"]["auroc"] > 0.8 and a["test"]["images"] == 150
+
+
+def test_phash_finds_near_copy_and_separates_different_images():
+    import numpy as np
+    from PIL import Image
+    from fracatlas_bench.neardup import hamming_to_nearest, phash
+    rng = np.random.default_rng(1)
+    base = (rng.random((300, 200)) * 255).astype(np.uint8)
+    base[100:200, 50:150] = 255
+    other = (rng.random((300, 200)) * 255).astype(np.uint8)
+    copy = np.clip(base.astype(int) + rng.integers(-3, 4, base.shape), 0, 255).astype(np.uint8)
+    h = lambda a: phash(Image.fromarray(a))
+    ref = np.stack([h(other), h(base)])
+    dist, idx = hamming_to_nearest(np.stack([h(copy)]), ref)
+    assert idx[0] == 1 and dist[0] <= 4
+    assert (h(base) != h(other)).sum() > 16
