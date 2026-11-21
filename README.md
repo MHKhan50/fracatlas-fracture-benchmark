@@ -1,5 +1,7 @@
 # FracAtlas Fracture Benchmark
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24429477.svg)](https://doi.org/10.5281/zenodo.24429477) · [Model](https://huggingface.co/MHkhan50/fracatlas-convnext-tiny) · [Browser demo](https://huggingface.co/spaces/MHkhan50/fracture-xray-check) · [Paper](paper/main.pdf)
+
 **Fracture classification, localisation, calibration and abstention on musculoskeletal X-rays: a small CNN, ConvNeXt-Tiny and DINOv2 (frozen and fine-tuned), three seeds each, and YOLO boxes, on one fixed split of FracAtlas.**
 
 > **Research use only. Not a medical device.** Outputs are model scores against dataset labels. They are not diagnoses and must not be used for patient care.
@@ -113,3 +115,21 @@ On Kaggle: import `notebooks/kaggle_fracatlas.ipynb` from this repository (GPU T
 Please cite FracAtlas: Abedeen, I., Rahman, Md. A., Prottyasha, F. Z., Ahmed, T., Chowdhury, T. M. and Shatabda, S. (2023). FracAtlas: A Dataset for Fracture Classification, Localization and Segmentation of Musculoskeletal Radiographs. *Scientific Data* 10, 521. https://doi.org/10.1038/s41597-023-02432-4
 
 Software: see `CITATION.cff`.
+
+## How to cite
+
+```bibtex
+@software{hussain2026fracatlas,
+  author    = {Hussain, Muzammal},
+  title     = {Pretrained Backbones, Calibration and Referral for Fracture Detection on {FracAtlas}:
+               A Three-Seed Comparison of a Small {CNN}, {ConvNeXt}, {DINOv2} and {YOLO}},
+  year      = {2026},
+  version   = {0.2.0},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.24429478},
+  url       = {https://doi.org/10.5281/zenodo.24429478}
+}
+```
+
+Please also cite FracAtlas: Abedeen et al. (2023), *Scientific Data* 10, 521, doi:10.1038/s41597-023-02432-4.
+

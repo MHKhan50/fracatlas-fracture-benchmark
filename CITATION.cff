@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below, and cite FracAtlas (Abedeen et al., 2023)."
 title: "FracAtlas Fracture Benchmark: classification, localisation, calibration and abstention on musculoskeletal X-rays"
 version: 0.2.0
+doi: 10.5281/zenodo.24429477
 date-released: 2026-11-21
 license: MIT
 repository-code: "https://github.com/MHKhan50/fracatlas-fracture-benchmark"
