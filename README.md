@@ -119,17 +119,18 @@ Software: see `CITATION.cff`.
 ## How to cite
 
 ```bibtex
-@software{hussain2026fracatlas,
+@misc{hussain2026fracatlas,
   author    = {Hussain, Muzammal},
   title     = {Pretrained Backbones, Calibration and Referral for Fracture Detection on {FracAtlas}:
                A Three-Seed Comparison of a Small {CNN}, {ConvNeXt}, {DINOv2} and {YOLO}},
   year      = {2026},
-  version   = {0.2.0},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.24429478},
-  url       = {https://doi.org/10.5281/zenodo.24429478}
+  doi       = {10.5281/zenodo.24503924},
+  url       = {https://doi.org/10.5281/zenodo.24503924}
 }
 ```
+
+Software (code, notebooks, results): [doi:10.5281/zenodo.24429477](https://doi.org/10.5281/zenodo.24429477).
 
 Please also cite FracAtlas: Abedeen et al. (2023), *Scientific Data* 10, 521, doi:10.1038/s41597-023-02432-4.
 
