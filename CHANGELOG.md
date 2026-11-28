@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- App: local files are read with `createImageBitmap` (fixes "The operation is insecure" in Safari inside the Space).
+- App: three samples (clear fracture, subtle fracture, no fracture), chosen by `scripts/pick_samples.py` from the test split with the released models; the rule and all test scores are saved.
+
 ## 0.2.0 (2026-11-21)
 
 - Near-duplicate results of the Kaggle release run in `results/kaggle-2026-11-21/neardup.json`, the paper and the README; detector export from a copy of the weights.

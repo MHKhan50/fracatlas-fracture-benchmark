@@ -46,11 +46,13 @@
       <input id="file" type="file" accept="image/*" hidden>
     </div>
     <div class="row">
-      <button data-sample="samples/fractured.jpg">Sample: fractured</button>
-      <button data-sample="samples/not_fractured.jpg">Sample: not fractured</button>
+      <button data-sample="samples/fractured_clear.jpg">Sample: clear fracture</button>
+      <button data-sample="samples/fractured_subtle.jpg">Sample: subtle fracture</button>
+      <button data-sample="samples/not_fractured.jpg">Sample: no fracture</button>
       <label class="small" style="align-self:center"><input type="checkbox" id="boxes" checked> show detector boxes</label>
     </div>
     <canvas id="view"></canvas>
+    <div class="small" id="samplenote">Samples are FracAtlas test images: the clearest fracture, a fracture the model is unsure about, and the clearest normal image.</div>
     <div id="status">Loading models (about 150 MB on first visit; cached afterwards)...</div>
   </section>
   <section class="card" id="result">
@@ -110,7 +112,7 @@ function detectorTensor(img) {
 
 function draw() {
   if (!lastImg) return;
-  const v = $("view"), w = lastImg.naturalWidth, h = lastImg.naturalHeight;
+  const v = $("view"), w = lastImg.naturalWidth || lastImg.width, h = lastImg.naturalHeight || lastImg.height;
   v.width = w; v.height = h; v.style.display = "block";
   const g = v.getContext("2d"); g.drawImage(lastImg, 0, 0);
   if (!$("boxes").checked) return;
@@ -145,11 +147,30 @@ async function analyse(img) {
   draw();
 }
 
+function fail(e) {
+  $("status").textContent = /insecure|security|tainted/i.test(e.message || "")
+    ? "This browser blocked reading the image. Try Chrome or Firefox, or open the app at fracture-xray-check.static.hf.space."
+    : "Error: " + e.message;
+}
+
 function load(src) {
   const img = new Image();
-  img.onload = () => analyse(img).catch((e) => ($("status").textContent = "Error: " + e.message));
+  img.onload = () => analyse(img).catch(fail);
   img.onerror = () => ($("status").textContent = "Could not read this image.");
   img.src = src;
+}
+
+// Local files: decode to an ImageBitmap (never taints the canvas, also in Safari inside the Space iframe).
+// Fallback: a data: URL from FileReader, which is also origin-clean. Blob URLs are avoided on purpose.
+async function loadFile(file) {
+  try {
+    await analyse(await createImageBitmap(file));
+  } catch (e) {
+    const r = new FileReader();
+    r.onload = () => load(r.result);
+    r.onerror = () => fail(e);
+    r.readAsDataURL(file);
+  }
 }
 
 async function init() {
@@ -172,10 +193,10 @@ async function init() {
 }
 
 $("drop").onclick = () => $("file").click();
-$("file").onchange = (e) => e.target.files[0] && load(URL.createObjectURL(e.target.files[0]));
+$("file").onchange = (e) => e.target.files[0] && loadFile(e.target.files[0]);
 $("drop").ondragover = (e) => { e.preventDefault(); $("drop").classList.add("over"); };
 $("drop").ondragleave = () => $("drop").classList.remove("over");
-$("drop").ondrop = (e) => { e.preventDefault(); $("drop").classList.remove("over"); const f = e.dataTransfer.files[0]; f && load(URL.createObjectURL(f)); };
+$("drop").ondrop = (e) => { e.preventDefault(); $("drop").classList.remove("over"); const f = e.dataTransfer.files[0]; f && loadFile(f); };
 document.querySelectorAll("[data-sample]").forEach((b) => (b.onclick = () => clf && load(b.dataset.sample)));
 $("boxes").onchange = draw;
 init();
